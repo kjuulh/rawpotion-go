@@ -9,7 +9,7 @@ steps:
       - name: dockersock
         path: /var/run
     commands:
-      - make docker-test
+      - docker build -f docker/test.Dockerfile .
 
 services:
   - name: docker
