@@ -9,14 +9,7 @@ steps:
       - name: dockersock
         path: /var/run
     commands:
-      - sleep 5
-      - docker ps -a
-      - git clone https://github.com/sobolevn/git-secret.git git-secret
-      - cd git-secret && make build
-      - PREFIX="/usr/local" make install
-      - gpg --import  <(echo "$DRONE_GITHUB_PRIVATE_KEY")
-      - git secret reveal
-      - cat secret.txt
+      - make docker-test
 
 services:
   - name: docker

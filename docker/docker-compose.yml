@@ -1,0 +1,29 @@
+version: "3.6"
+
+services:
+  basic-webserver:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    ports:
+      - 8082:8082
+    links:
+      - postgres
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:alpine
+    restart: always
+    env_file: db/env/db.env
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    links:
+      - postgres
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=docker@kjuulh.io
+      - PGADMIN_DEFAULT_PASSWORD=docker
+    ports:
+      - 8083:80
