@@ -9,6 +9,7 @@ steps:
       - name: dockersock
         path: /var/run
     commands:
+      - apt-get update && apt-get install make
       - make test
 
 services:
