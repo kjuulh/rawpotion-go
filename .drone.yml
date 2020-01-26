@@ -4,12 +4,12 @@ name: default
 
 steps:
   - name: test
-    image: docker:dind
+    image: ubuntu
     volumes:
       - name: dockersock
         path: /var/run
     commands:
-      - docker build -f docker/test.Dockerfile .
+      - make test
 
 services:
   - name: docker
