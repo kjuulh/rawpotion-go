@@ -7,10 +7,10 @@ DOCKER        := docker
 DOCKERFILE_DIR?= ./docker
 DOCKERFILE    := Dockerfile
 
-RELEASE_NAME  ?= rawpotion
+RELEASE_NAME  ?= rawpotion-go
 
 # Binaries
-BINARIES ?= rawpotion
+BINARIES ?= rawpotion-go
 
 # Output dir
 OUT_DIR := ./dist
@@ -76,7 +76,7 @@ endif
 # Go Build Details 
 # Inspiration taken from dapr/dapr
 
-PACKAGE := github.com/kjuulh/basic-webserver
+PACKAGE := github.com/kjuulh/rawpotion-go
 
 RP_OUT_DIR := $(OUT_DIR)/$(GOOS)_$(GOARCH)/$(BUILDTYPE_DIR)
 RP_LINUX_OUT_DIR := $(OUT_DIR)/linux_$(GOARCH)/$(BUILDTYPE_DIR)

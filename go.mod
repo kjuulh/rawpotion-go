@@ -1,4 +1,4 @@
-module github.com/kjuulh/basic-webserver
+module github.com/kjuulh/rawpotion-go
 
 go 1.13
 

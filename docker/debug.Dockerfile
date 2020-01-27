@@ -1,5 +1,5 @@
 FROM golang:alpine
-WORKDIR /go/src/github.com/kjuulh/rawpotion/
+WORKDIR /go/src/github.com/kjuulh/rawpotion-go/
 
 COPY go.mod go.sum ./
 RUN go mod download
@@ -12,5 +12,5 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 EXPOSE 8082
-COPY --from=0 /go/src/github.com/kjuulh/rawpotion/app .
+COPY --from=0 /go/src/github.com/kjuulh/rawpotion-go/app .
 CMD ["./app"]

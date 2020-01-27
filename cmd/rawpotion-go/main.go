@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/kjuulh/basic-webserver/pkg/database"
+	"github.com/kjuulh/rawpotion-go/pkg/database"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
