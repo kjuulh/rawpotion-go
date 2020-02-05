@@ -14,8 +14,7 @@ func main() {
 	e := echo.New()
 
 	// Load config
-	cfg := config.GetConfigFromFile("/home/hermansen/go-projects/src/github.com/kjuulh/rawpotion-go/configs/config.yml")
-
+	cfg := config.GetConfigFromFile("configs/config.yml")
 	d := database.NewDatabase(database.Config{
 		Database: cfg.Database.Database,
 		Host:     cfg.Database.Host,
