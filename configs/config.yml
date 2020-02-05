@@ -1,0 +1,11 @@
+server:
+  host: "localhost"
+  port: 8080
+  runtime: localhost
+
+database:
+  user: docker
+  password: docker
+  host: localhost
+  port: 5432
+  database: docker

@@ -2,22 +2,32 @@ package database
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
+	"fmt"
 	"log"
+
+	_ "github.com/lib/pq"
 )
 
 type Database interface {
 	OpenConnection()
 }
 
-type database struct{}
+type database struct {
+	config Config
+}
 
-func NewDatabase() Database {
-	return &database{}
+func NewDatabase(config Config) Database {
+	return &database{config}
 }
 
 func (d *database) OpenConnection() {
-	connStr := "user=docker password=docker host=postgres dbname=docker sslmode=disable"
+	connStr := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
+		d.config.User,
+		d.config.Password,
+		d.config.Host,
+		d.config.Port,
+		d.config.Database,
+	)
 	db, err := sql.Open("postgres", connStr)
 
 	if err != nil {

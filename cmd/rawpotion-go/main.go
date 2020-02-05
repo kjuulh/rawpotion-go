@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/kjuulh/rawpotion-go/pkg/config"
 	"github.com/kjuulh/rawpotion-go/pkg/database"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -12,7 +13,16 @@ func main() {
 	// Echo instance
 	e := echo.New()
 
-	d := database.NewDatabase()
+	// Load config
+	cfg := config.GetConfigFromFile("/home/hermansen/go-projects/src/github.com/kjuulh/rawpotion-go/configs/config.yml")
+
+	d := database.NewDatabase(database.Config{
+		Database: cfg.Database.Database,
+		Host:     cfg.Database.Host,
+		Port:     cfg.Database.Port,
+		User:     cfg.Database.User,
+		Password: cfg.Database.Password,
+	})
 	d.OpenConnection()
 
 	// Middleware
