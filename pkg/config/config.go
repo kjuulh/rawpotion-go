@@ -22,10 +22,11 @@ type Config struct {
 	} `yaml:"database"`
 }
 
-func GetConfigFromFile(path string) *Config {
+func GetConfigFromFile(path string) (*Config, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 	defer f.Close()
 
@@ -34,6 +35,7 @@ func GetConfigFromFile(path string) *Config {
 	err = decoder.Decode(&cfg)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
-	return &cfg
+	return &cfg, nil
 }

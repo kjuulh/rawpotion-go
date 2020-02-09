@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/kjuulh/rawpotion-go/pkg/config"
 	"github.com/kjuulh/rawpotion-go/pkg/database"
+	"github.com/kjuulh/rawpotion-go/pkg/tables"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -14,15 +15,24 @@ func main() {
 	e := echo.New()
 
 	// Load config
-	cfg := config.GetConfigFromFile("configs/config.yml")
-	d := database.NewDatabase(database.Config{
-		Database: cfg.Database.Database,
-		Host:     cfg.Database.Host,
-		Port:     cfg.Database.Port,
-		User:     cfg.Database.User,
-		Password: cfg.Database.Password,
+	d := database.NewDatabase()
+	d.LoadConfigFromFile("../../configs/config.yml")
+	d.Open()
+
+	defer d.Close()
+
+	t, err := tables.NewUsersTable(tables.UsersTableConfig{Db: &d})
+	if err != nil {
+		fmt.Println("Failed at create table")
+	}
+	u, err := t.InsertUser(tables.UsersRow{
+		Username: "Kasper J. Hermansen",
+		Password: "Blizzar1",
 	})
-	d.OpenConnection()
+	if err != nil {
+		fmt.Println("failed at insert")
+	}
+	fmt.Printf("Id: %s, Username: %s, Password: %s", u.Id, u.Username, u.Password)
 
 	// Middleware
 	e.Use(middleware.Logger())
