@@ -1,11 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-
 	"github.com/kjuulh/rawpotion-go/pkg/database"
+	"github.com/kjuulh/rawpotion-go/pkg/routes"
 	"github.com/kjuulh/rawpotion-go/pkg/tables"
+	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -16,45 +15,32 @@ func main() {
 
 	// Load config
 	d := database.NewDatabase()
-	d.LoadConfigFromFile("../../configs/config.yml")
+	d.LoadConfigFromFile("configs/config.yml")
 	d.Open()
 
 	defer d.Close()
 
-	t, err := tables.NewUsersTable(tables.UsersTableConfig{Db: &d})
-	if err != nil {
-		fmt.Println("Failed at create table")
-	}
-	u, err := t.InsertUser(tables.UsersRow{
-		Username: "Kasper J. Hermansen",
-		Password: "Blizzar1",
-	})
-	if err != nil {
-		fmt.Println("failed at insert")
-	}
-	fmt.Printf("Id: %s, Username: %s, Password: %s", u.Id, u.Username, u.Password)
+	tables.InitUsersTable(&d)
 
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	// Prometheus
+	p := prometheus.NewPrometheus("echo", nil)
+	p.Use(e)
+
+	// Recover
+	e.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
+		StackSize: 1 << 10, // 1 KB
+	}))
+
+	// Request ID
+	e.Use(middleware.RequestID())
+
 	// Routes
-	e.GET("/", hello)
+	routes.Routes(e)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":8082"))
-}
-
-// Handler
-func hello(c echo.Context) error {
-	type User struct {
-		Name  string `json:"name" xml:"name"`
-		Email string `json:"email" xml:"email"`
-	}
-
-	u := &User{
-		Name:  "Kasper",
-		Email: "hermansendev@gmail.com",
-	}
-	return c.JSON(http.StatusOK, u)
 }

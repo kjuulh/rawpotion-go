@@ -8,12 +8,14 @@ import (
 	"github.com/kjuulh/rawpotion-go/pkg/database"
 )
 
-type UsersTable struct {
-	db *database.Database
+type UsersTable interface {
+	Insert(row UsersRow) (newRow UsersRow, err error)
+	GetByUsername(username string) (row UsersRow, err error)
+	GetAll() (rows []UsersRow, err error)
 }
 
-type UsersTableConfig struct {
-	Db *database.Database
+type usersDb struct {
+	db *database.Database
 }
 
 type UsersRow struct {
@@ -22,13 +24,13 @@ type UsersRow struct {
 	Password string
 }
 
-func NewUsersTable(cfg UsersTableConfig) (table UsersTable, err error) {
-	if cfg.Db == nil {
+func NewUsersTable(db *database.Database) (table usersDb, err error) {
+	if db == nil {
 		err = errors.New("Cannot create UsersTable without UsersTableConfig")
 		return
 	}
 
-	table.db = cfg.Db
+	table.db = db
 
 	if err = table.createTable(); err != nil {
 		fmt.Println(err)
@@ -38,7 +40,7 @@ func NewUsersTable(cfg UsersTableConfig) (table UsersTable, err error) {
 	return
 }
 
-func (table *UsersTable) createTable() (err error) {
+func (table *usersDb) createTable() (err error) {
 	const qry = `
 			CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 			CREATE TABLE IF NOT EXISTS users (
@@ -55,7 +57,7 @@ func (table *UsersTable) createTable() (err error) {
 	return
 }
 
-func (table *UsersTable) InsertUser(row UsersRow) (newRow UsersRow, err error) {
+func (table *usersDb) Insert(row UsersRow) (newRow UsersRow, err error) {
 	if row.Username == "" || row.Password == "" {
 		err = errors.New("Can't create user without username and password")
 		return
@@ -83,7 +85,7 @@ RETURNING
 	return
 }
 
-func (table *UsersTable) GetUserByUsername(username string) (row UsersRow, err error) {
+func (table *usersDb) GetByUsername(username string) (row UsersRow, err error) {
 	if username == "" {
 		err = errors.New("Cannot get empty username")
 		return
@@ -101,4 +103,43 @@ func (table *UsersTable) GetUserByUsername(username string) (row UsersRow, err e
 	}
 
 	return
+}
+
+func (table *usersDb) GetAll() (rows []UsersRow, err error) {
+	const qry = `
+		SELECT id, username FROM users
+	`
+
+	rs, err := table.db.Db.Query(qry)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer rs.Close()
+
+	for rs.Next() {
+		u := UsersRow{}
+		err = rs.Scan(&u.Id, &u.Username)
+		if err != nil {
+
+			return
+		}
+		rows = append(rows, u)
+
+	}
+	if !rs.NextResultSet() {
+		err = rs.Err()
+	}
+
+	return
+}
+
+var User UsersTable
+
+func InitUsersTable(db *database.Database) {
+	User = &usersDb{db: db}
+	_, err := NewUsersTable(db)
+	if err != nil {
+		panic(err)
+	}
 }
